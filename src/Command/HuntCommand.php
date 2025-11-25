@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Service\JobAnalyzer;
 use App\Service\JobHunter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -10,47 +9,42 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'app:hunt',
-    description: 'Scanne le web à la recherche de jobs et analyse avec IA',
-)]
+#[AsCommand(name: 'app:hunt', description: 'Scanne les jobs (France Travail + RSS)')]
 class HuntCommand extends Command
 {
-    public function __construct(
-        private JobHunter $hunter
-    ) {
+    public function __construct(private JobHunter $hunter)
+    {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
         $io->title('🕵️  Chasse aux jobs lancée...');
 
-        $results = $this->hunter->hunt(3);
+        // Le Hunter renvoie maintenant des Objets Job, plus des tableaux
+        $jobs = $this->hunter->hunt(5);
 
-        if (empty($results)) {
-            $io->warning("Aucun résultat trouvé ou erreur lors de la lecture du flux.");
-            return Command::FAILURE;
+        if (empty($jobs)) {
+            $io->warning("Aucune NOUVELLE offre trouvée (elles sont peut-être déjà en base).");
+            return Command::SUCCESS;
         }
 
-        foreach ($results as $result) {
-            $io->section("Analyse de : " . $result['title']);
+        foreach ($jobs as $job) {
+            // ON UTILISE LES GETTERS (->) AU LIEU DES CROCHETS ([])
+            $score = $job->getScore();
+            $title = $job->getTitle();
+            $summary = $job->getSummary();
             
-            $score = $result['score'];
             $color = $score > 70 ? 'green' : ($score > 40 ? 'yellow' : 'red');
             
+            $io->section($title);
             $io->writeln("<fg=$color>Score : $score/100</>");
-            $io->text("Résumé : " . $result['summary']);
-
-            if ($score > 70) {
-                $io->success("🔥 CIBLE DÉTECTÉE !");
-                $io->note("Brouillon de lettre : \n" . ($result['letter'] ?? ''));
-            } else {
-                $io->text("Pas intéressant.");
-            }
+            $io->text($summary ?? 'Pas de résumé');
+            $io->newLine();
         }
+
+        $io->success(count($jobs) . " nouvelles offres ajoutées en base ! 🚀");
 
         return Command::SUCCESS;
     }

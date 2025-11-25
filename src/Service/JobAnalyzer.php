@@ -56,4 +56,45 @@ class JobAnalyzer
             return null;
         }
     }
+
+    // Ajoute cette nouvelle méthode dans ta classe JobAnalyzer
+    // (Tu peux garder l'ancienne méthode 'analyze' pour le scoring si tu veux, 
+    // mais voici celle pour la lettre spécifique)
+
+    public function generateCoverLetter(string $jobTitle, string $jobDesc, string $myProfile): ?string
+    {
+        // On nettoie un peu
+        $cleanDesc = substr(strip_tags($jobDesc), 0, 2000);
+
+        try {
+            $response = $this->client->request('POST', 'https://api.deepseek.com/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'deepseek-chat',
+                    'messages' => [
+                        [
+                            'role' => 'system', 
+                            'content' => "Tu es un expert en recrutement. Rédige une lettre de motivation pour le poste '$jobTitle'. 
+                            Utilise les informations du candidat ci-dessous. 
+                            Le ton doit être : " . $myProfile . "
+                            Ne mets pas de placeholders [Nom] etc, signe 'Alexandre Verbreugh'."
+                        ],
+                        [
+                            'role' => 'user', 
+                            'content' => "Détails de l'offre : " . $cleanDesc
+                        ],
+                    ],
+                ],
+            ]);
+
+            $content = $response->toArray()['choices'][0]['message']['content'] ?? null;
+            return $content;
+
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 }

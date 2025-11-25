@@ -4,6 +4,13 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.candidate_profile: |
+        Je suis un développeur Web passionné par Symfony et l'écosystème PHP.
+        J'ai une forte expérience sur Linux (Ubuntu) et je gère mon propre serveur Apache.
+        Je suis à l'aise avec la ligne de commande et l'automatisation (n8n, scripts).
+        J'aime les environnements techniques exigeants mais avec une bonne ambiance.
+        Mon ton est professionnel mais direct et dynamique.
+        Point fort : Capacité à transformer des besoins complexes en code propre et maintenable.
 
 services:
     # default configuration for services in *this* file
