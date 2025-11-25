@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Service\JobAnalyzer;
+use App\Service\JobHunter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class HuntCommand extends Command
 {
     public function __construct(
-        private JobAnalyzer $analyzer
+        private JobHunter $hunter
     ) {
         parent::__construct();
     }
@@ -24,63 +25,31 @@ class HuntCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $rssUrl = 'https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss';
         
         $io->title('🕵️  Chasse aux jobs lancée...');
 
-        // 1. Récupération du flux RSS
-        $io->text("Lecture du flux RSS : $rssUrl");
-        
-        // simplexml est natif en PHP, c'est le plus simple pour du RSS
-        $rss = simplexml_load_file($rssUrl);
+        $results = $this->hunter->hunt(3);
 
-        if ($rss === false) {
-            $io->error("Impossible de lire le flux RSS.");
+        if (empty($results)) {
+            $io->warning("Aucun résultat trouvé ou erreur lors de la lecture du flux.");
             return Command::FAILURE;
         }
 
-        $count = 0;
-        $maxTests = 3; // SÉCURITÉ : On ne teste que 3 offres pour commencer
-
-        foreach ($rss->channel->item as $item) {
-            // Petite sécurité pour ne pas tout scanner d'un coup
-            if ($count >= $maxTests) {
-                $io->warning("Limite de test atteinte ($maxTests offres). Arrêt pour économiser l'API.");
-                break;
-            }
-
-            $title = (string)$item->title;
-            $link = (string)$item->link;
-            $desc = (string)$item->description; // Contient le HTML de l'offre
-
-            $io->section("Analyse de : $title");
+        foreach ($results as $result) {
+            $io->section("Analyse de : " . $result['title']);
             
-            // Appel au service IA
-            $io->text("🧠 Interrogation de DeepSeek...");
-            $result = $this->analyzer->analyze($desc);
-
-            if (!$result) {
-                $io->error("Erreur lors de l'analyse API.");
-                continue;
-            }
-
-            // Affichage du résultat
-            $score = $result['score'] ?? 0;
+            $score = $result['score'];
             $color = $score > 70 ? 'green' : ($score > 40 ? 'yellow' : 'red');
             
             $io->writeln("<fg=$color>Score : $score/100</>");
-            $io->text("Résumé : " . ($result['summary'] ?? 'Pas de résumé'));
+            $io->text("Résumé : " . $result['summary']);
 
             if ($score > 70) {
                 $io->success("🔥 CIBLE DÉTECTÉE !");
                 $io->note("Brouillon de lettre : \n" . ($result['letter'] ?? ''));
-                // TODO: Ici on ajoutera l'envoi de mail plus tard
             } else {
                 $io->text("Pas intéressant.");
             }
-
-            $count++;
-            sleep(1); // Petite pause pour être poli avec l'API
         }
 
         return Command::SUCCESS;
