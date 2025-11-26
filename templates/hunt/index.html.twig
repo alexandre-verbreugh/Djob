@@ -1,202 +1,234 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Chasse aux Jobs{% endblock %}
+{% block title %}Recherche France Travail{% endblock %}
 
 {% block body %}
 <style>
     .hunt-container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 2rem auto;
         padding: 0 1rem;
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
-    .hunt-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-    .hunt-title {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem;
-    }
-    .hunt-subtitle {
-        color: #64748b;
-        font-size: 1.1rem;
-    }
-    .job-card {
+    
+    /* --- STYLE DU FORMULAIRE --- */
+    .search-box {
         background: white;
-        border-radius: 16px;
         padding: 2rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 3rem;
         border: 1px solid #e2e8f0;
     }
-    .job-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    .search-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        text-align: center;
     }
+    .form-row {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        align-items: flex-end; /* Aligne le bouton avec les champs */
+    }
+    .form-group {
+        flex: 1;
+        min-width: 250px;
+    }
+    .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+    /* Les classes .form-input et .btn-search sont injectées via le PHP (SearchJobType)
+       mais on peut les styliser ici si besoin de surcharge */
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    .btn-search {
+        background: #0f172a;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background 0.2s;
+        height: 48px; /* Pour matcher la hauteur des inputs */
+    }
+    .btn-search:hover {
+        background: #334155;
+    }
+
+    /* --- STYLE DES RÉSULTATS --- */
+    .results-count {
+        margin-bottom: 1rem;
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .job-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .job-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    
     .job-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
     .job-title {
         font-size: 1.25rem;
         font-weight: 700;
         color: #1e293b;
-        text-decoration: none;
-        margin: 0;
     }
-    .job-title:hover {
-        color: #4f46e5;
-    }
-    .score-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 9999px;
+    .company-name {
         font-weight: 600;
-        font-size: 0.875rem;
+        color: #4f46e5;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
     }
-    .score-green { background: #dcfce7; color: #166534; }
-    .score-yellow { background: #fef9c3; color: #854d0e; }
-    .score-red { background: #fee2e2; color: #991b1b; }
     
-    .job-summary {
-        color: #475569;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-    }
-    .job-actions {
+    /* Badges (Lieu, Contrat, Salaire) */
+    .tags {
         display: flex;
-        gap: 1rem;
-        align-items: center;
-        margin-top: 1.5rem;
+        gap: 0.75rem;
         flex-wrap: wrap;
+        margin-bottom: 1rem;
     }
-    .btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
+    .tag {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.25rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
         font-weight: 500;
-        text-decoration: none;
-        transition: all 0.2s;
-        font-size: 0.9rem;
-    }
-    .btn-primary {
-        background: #1e293b; /* Plus sobre */
-        color: white;
-    }
-    .btn-primary:hover {
-        background: #0f172a;
-    }
-    
-    /* Nouveau bouton IA */
-    .btn-ai {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        color: white;
-        box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3);
-    }
-    .btn-ai:hover {
-        filter: brightness(1.1);
-        transform: translateY(-1px);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
-    /* Zone de la lettre déroulante */
-    details.letter-box {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        overflow: hidden;
-        margin-top: 1rem;
-    }
-    details.letter-box summary {
-        padding: 1rem;
-        cursor: pointer;
-        font-weight: 600;
-        color: #4f46e5;
-        list-style: none; /* Cache la flèche par défaut sur certains navigateurs */
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    details.letter-box summary::before {
-        content: '👉';
-        font-size: 1.2em;
-        transition: transform 0.2s;
-    }
-    details.letter-box[open] summary::before {
-        transform: rotate(90deg);
-    }
-    .letter-content {
-        padding: 1rem;
-        padding-top: 0;
-        border-top: 1px solid #e2e8f0;
+    .job-desc {
         color: #334155;
-        white-space: pre-line; /* Garde les sauts de ligne */
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
         font-size: 0.95rem;
     }
+
+    .btn-link {
+        display: inline-flex;
+        align-items: center;
+        color: #2563eb;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .btn-link:hover { text-decoration: underline; }
 </style>
 
 <div class="hunt-container">
-    <div class="hunt-header">
-        <h1 class="hunt-title">Chasse aux Jobs</h1>
-        <p class="hunt-subtitle">Les meilleures offres détectées par l'IA</p>
+
+    <div class="search-box">
+        <h2 class="search-title">🔎 Explorateur France Travail</h2>
         
-        {# Affichage des messages flash (succès/erreur) #}
-        {% for message in app.flashes('success') %}
-            <div style="background:#dcfce7; color:#166534; padding:1rem; border-radius:8px; margin-top:1rem;">
-                {{ message }}
+        {{ form_start(form) }}
+            <div class="form-row">
+                <div class="form-group">
+                    {{ form_label(form.keyword, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.keyword) }}
+                </div>
+                <div class="form-group">
+                    {{ form_label(form.location, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.location) }}
+                </div>
+                <div>
+                    {{ form_widget(form.rechercher) }}
+                </div>
             </div>
-        {% endfor %}
-        {% for message in app.flashes('error') %}
-            <div style="background:#fee2e2; color:#991b1b; padding:1rem; border-radius:8px; margin-top:1rem;">
-                {{ message }}
-            </div>
-        {% endfor %}
+        {{ form_end(form) }}
+    </div>
+
+    <div style="text-align: right; margin-bottom: 1rem;">
+        <a href="{{ path('app_my_jobs') }}" style="text-decoration: none; color: #4f46e5; font-weight: 600; background: #eef2ff; padding: 8px 16px; border-radius: 99px;">
+            📂 Voir mes candidatures sauvegardées
+        </a>
+    </div>
+
+    <div class="results-count">
+        {% if jobs is not empty %}
+            {{ jobs|length }} offres trouvées
+        {% endif %}
     </div>
 
     {% if jobs is empty %}
-        <div class="job-card" style="text-align: center; padding: 3rem;">
-            <h3>Aucune offre trouvée pour le moment 😴</h3>
-            <p>Réessayez plus tard ou lancez le script de chasse.</p>
+        <div style="text-align: center; padding: 4rem; color: #94a3b8; background: white; border-radius: 12px; border: 1px dashed #cbd5e1;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🤷‍♂️</div>
+            <h3>Aucune offre trouvée</h3>
+            <p>Essaie de changer de mot-clé ou de département (ex: 75, 33, 69...)</p>
         </div>
     {% else %}
         {% for job in jobs %}
             <div class="job-card">
                 <div class="job-header">
-                    <a href="{{ job.link }}" target="_blank" class="job-title">{{ job.title }}</a>
-                    {% set scoreClass = job.score > 70 ? 'score-green' : (job.score > 40 ? 'score-yellow' : 'score-red') %}
-                    <span class="score-badge {{ scoreClass }}">
-                        Score: {{ job.score }}/100
-                    </span>
+                    <div class="job-title">{{ job.intitule }}</div>
+                    <div style="font-size: 0.85rem; color: #94a3b8;">
+                        {{ job.dateCreation | date('d/m/Y') }}
+                    </div>
+                </div>
+
+                <div class="company-name">
+                    🏢 {{ job.entreprise.nom ?? 'Entreprise Confidentielle' }}
+                </div>
+
+                <div class="tags">
+                    <span class="tag">📍 {{ job.lieuTravail.libelle }}</span>
+                    <span class="tag">📜 {{ job.typeContrat }}</span>
+                    {% if job.salaire.libelle is defined %}
+                        <span class="tag">💰 {{ job.salaire.libelle }}</span>
+                    {% endif %}
                 </div>
                 
-                <p class="job-summary">{{ job.summary }}</p>
+                <p class="job-desc">
+                    {{ job.description | length > 300 ? job.description|slice(0, 300) ~ '...' : job.description }}
+                </p>
 
-                {# LOGIQUE DU BOUTON / LETTRE #}
-                {% if job.letter %}
-                    <details class="letter-box">
-                        <summary>Lettre de motivation générée (Clique pour voir)</summary>
-                        <div class="letter-content">
-                            {{ job.letter }}
-                        </div>
-                    </details>
-                {% else %}
-                    <div style="margin-top: 1rem;">
-                        <a href="{{ path('app_job_generate_letter', {id: job.id}) }}" class="btn btn-ai">
-                            ✨ Générer lettre avec IA
-                        </a>
-                    </div>
+                {# Construction intelligente du lien #}
+                {# 1. On cherche le lien partenaire ou le lien pour postuler #}
+                {% set jobLink = job.origineOffre.urlOrigine ?? job.contact.urlPostulation ?? null %}
+
+                {# 2. Si on n'a rien trouvé, on tente le lien France Travail #}
+                {% if jobLink is null %}
+                    {# On vérifie si c'est un "vrai" ID France Travail (généralement 7 chiffres + 1 lettre, donc <= 8 caractères) #}
+                    {% if job.id|length <= 8 %}
+                        {% set jobLink = 'https://candidat.francetravail.fr/offres/recherche/detail/' ~ job.id %}
+                    {% else %}
+                        {# Cas désespéré : C'est une offre partenaire sans lien. On renvoie vers la recherche générale #}
+                        {% set jobLink = 'https://candidat.francetravail.fr/offres/recherche' %}
+                    {% endif %}
                 {% endif %}
-
-                <div class="job-actions">
-                    <a href="{{ job.link }}" target="_blank" class="btn btn-primary">Voir l'offre originale &rarr;</a>
-                </div>
+                <a href="{{ path('app_job_show', {id: job.id}) }}" class="btn-link" style="margin-right: 15px; color: #1e293b;">
+                    👁️ Voir les détails
+                </a>
+                <a href="{{ jobLink }}" target="_blank" class="btn-link">
+                    Voir l'offre sur France Travail &rarr;
+                </a>
             </div>
         {% endfor %}
     {% endif %}

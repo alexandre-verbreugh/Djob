@@ -67,4 +67,27 @@ class FranceTravailService
             return [];
         }
     }
+
+    // Récupère une offre unique par son ID
+    public function getJobDetails(string $id): ?array
+    {
+        try {
+            $token = $this->getAccessToken();
+
+            $response = $this->client->request('GET', 'https://api.francetravail.io/partenaire/offresdemploi/v2/offres/' . $id, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            if ($response->getStatusCode() === 200) {
+                return $response->toArray();
+            }
+
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 }
