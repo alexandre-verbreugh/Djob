@@ -21,7 +21,10 @@ class FranceTravailService
             return $this->accessToken;
         }
 
-        $response = $this->client->request('POST', 'https://entreprise.francetravail.fr/connexion/oauth2/access_token', [
+        // CORRECTION : On met le realm directement dans l'URL !
+        $url = 'https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire';
+
+        $response = $this->client->request('POST', $url, [
             'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
             'body' => [
                 'grant_type' => 'client_credentials',
@@ -49,19 +52,18 @@ class FranceTravailService
                 ],
                 'query' => [
                     'motsCles' => $keyword,
-                    'commune' => $location,
+                    // CORRECTION ICI : On utilise 'departement' au lieu de 'commune' pour "75"
+                    'departement' => $location, 
                     'range' => '0-9', 
                     'sort' => '1',
                 ]
             ]);
 
-            if ($response->getStatusCode() === 204) {
-                return [];
-            }
-
             return $response->toArray()['resultats'] ?? [];
 
         } catch (\Exception $e) {
+            // En production, l'idéal serait de loguer l'erreur ici (ex: $this->logger->error($e))
+            // Mais pour l'instant, on retourne silencieusement un tableau vide pour ne pas casser le script
             return [];
         }
     }

@@ -45,6 +45,7 @@ class JobHunter
         }
 
         // --- 2. SOURCE : FLUX RSS (Si on n'a pas atteint la limite) ---
+        /*
         if ($totalCount < $limit) {
             $rssUrl = 'https://weworkremotely.com/categories/remote-back-end-programming-jobs.rss';
             $rss = @simplexml_load_file($rssUrl);
@@ -63,6 +64,7 @@ class JobHunter
                 }
             }
         }
+        */
 
         return $jobsToReturn;
     }
