@@ -8,6 +8,7 @@ Djob est une application web intelligente pour la recherche d'emploi. Elle perme
 - **Détails enrichis** : Affichage complet des offres (compétences, contact, expérience).
 - **IA à la demande** : Génération d'une lettre de motivation ultra-personnalisée via DeepSeek (uniquement pour les offres sélectionnées).
 - **Gestion des Candidatures** : Sauvegarde automatique des offres intéressantes et des lettres générées dans une base de données MySQL ("Shortlist").
+- **Suivi** : Marquez vos candidatures comme "Postulé" pour un meilleur suivi.
 - **Tableau de bord** : Vue centralisée pour retrouver ses candidatures sauvegardées.
 
 ## Installation
@@ -91,6 +92,7 @@ php bin/console app:hunt
 - [x] Recherche en direct France Travail (API)
 - [x] Génération de lettre "On Demand"
 - [x] Sauvegarde BDD (Favoris)
+- [x] Suivi des candidatures (Statut "Postulé")
 - [ ] Ajout de sources : Intégrer WeLoveDevs et Welcome to the Jungle.
 - [ ] Export PDF : Télécharger la lettre de motivation générée au format PDF.
 - [ ] Filtres avancés : Recherche par salaire, type de contrat (CDI/Freelance).

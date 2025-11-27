@@ -1,154 +1,132 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ job.intitule }}{% endblock %}
+{% block title %}
+	{{ job.intitule }}
+{% endblock %}
 
 {% block body %}
-<style>
-    .job-container { max-width: 800px; margin: 3rem auto; padding: 0 1rem; font-family: 'Inter', sans-serif; }
-    
-    .back-link { display: inline-flex; align-items: center; color: #64748b; text-decoration: none; margin-bottom: 2rem; font-weight: 500; }
-    .back-link:hover { color: #1e293b; }
+	{% block stylesheets %}
+		{{ parent() }}
+		<link rel="stylesheet" href="{{ asset('styles/show.css') }}">
+	{% endblock %}
 
-    .header-box { background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-    .job-h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; line-height: 1.3; margin-bottom: 0.5rem; }
-    .company { font-size: 1.1rem; color: #4f46e5; font-weight: 600; margin-bottom: 1.5rem; }
+	<div class="job-container">
+		<a href="{{ path('app_hunt') }}" class="back-link">← Retour à la recherche</a>
 
-    .badges { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .badge { background: #f1f5f9; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; color: #475569; font-size: 0.9rem; }
-    .badge-money { background: #dcfce7; color: #166534; }
-
-    .content-box { background: white; padding: 2rem; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 2rem; }
-    .section-title { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; }
-    
-    .description { line-height: 1.8; color: #334155; white-space: pre-line; }
-
-    .skills-grid { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-    .skill-tag { background: #e0e7ff; color: #3730a3; padding: 4px 12px; border-radius: 99px; font-size: 0.85rem; font-weight: 600; }
-
-    .action-bar { position: sticky; bottom: 2rem; background: white; padding: 1rem; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; justify-content: space-between; align-items: center; }
-    .btn-apply { background: #1e293b; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; }
-    .btn-apply:hover { background: #0f172a; }
-    
-    /* Style pour le bouton IA */
-    .btn-ai {
-        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-        color: white;
-        transition: filter 0.2s;
-    }
-    .btn-ai:hover { filter: brightness(1.1); }
-</style>
-
-<div class="job-container">
-    <a href="{{ path('app_hunt') }}" class="back-link">← Retour à la recherche</a>
-
-    {% for message in app.flashes('success') %}
-        <div style="background:#dcfce7; color:#166534; padding:1rem; border-radius:8px; margin-bottom: 2rem; border: 1px solid #bbf7d0;">
+		{% for message in app.flashes('success') %}
+			<div style="background:#dcfce7; color:#166534; padding:1rem; border-radius:8px; margin-bottom: 2rem; border: 1px solid #bbf7d0;">
             ✅ {{ message }}
-        </div>
-    {% endfor %}
-    {% for message in app.flashes('error') %}
-        <div style="background:#fee2e2; color:#991b1b; padding:1rem; border-radius:8px; margin-bottom: 2rem; border: 1px solid #fecaca;">
+			</div>
+		{% endfor %}
+		{% for message in app.flashes('error') %}
+			<div style="background:#fee2e2; color:#991b1b; padding:1rem; border-radius:8px; margin-bottom: 2rem; border: 1px solid #fecaca;">
             ❌ {{ message }}
-        </div>
-    {% endfor %}
+			</div>
+		{% endfor %}
 
-    <div class="header-box">
-        <h1 class="job-h1">{{ job.intitule }}</h1>
+		<div class="header-box">
+			<h1 class="job-h1">{{ job.intitule }}</h1>
         <div class="company">🏢 {{ job.entreprise.nom ?? 'Entreprise Confidentielle' }}</div>
-        
-        <div class="badges">
+
+			<div class="badges">
             <span class="badge">📍 {{ job.lieuTravail.libelle }}</span>
             <span class="badge">📜 {{ job.typeContrat }}</span>
             <span class="badge">⏱️ {{ job.dureeTravailLibelleConverti ?? job.dureeTravailLibelle ?? 'Durée non précisée' }}</span>
             <span class="badge">📅 Publié le {{ job.dateCreation | date('d/m/Y') }}</span>
-            {% if job.salaire.libelle is defined %}
+				{% if job.salaire.libelle is defined %}
                 <span class="badge badge-money">💰 {{ job.salaire.libelle }}</span>
-            {% endif %}
-        </div>
-    </div>
+				{% endif %}
+			</div>
+		</div>
 
-    <div class="content-box">
-        <h3 class="section-title">Description du poste</h3>
-        <div class="description">{{ job.description }}</div>
-    </div>
+		<div class="content-box">
+			<h3 class="section-title">Description du poste</h3>
+			<div class="description">{{ job.description }}</div>
+		</div>
 
-    <div class="content-box">
-        <h3 class="section-title">Profil recherché</h3>
-        
-        {% if job.experienceLibelle is defined %}
+		<div class="content-box">
+			<h3 class="section-title">Profil recherché</h3>
+
+			{% if job.experienceLibelle is defined %}
             <p><strong>🎓 Expérience :</strong> {{ job.experienceLibelle }}</p>
-        {% endif %}
+			{% endif %}
 
-        {% if job.formation is defined and job.formation is not empty %}
+			{% if job.formation is defined and job.formation is not empty %}
              <p><strong>📚 Formation :</strong> {{ job.formation[0].domaineLibelle ?? job.formation[0].niveauLibelle }}</p>
-        {% endif %}
+			{% endif %}
 
-        {% if job.competences is defined %}
-            <div style="margin-top: 1.5rem;">
-                <strong>🛠 Compétences :</strong>
-                <div class="skills-grid">
-                    {% for comp in job.competences %}
-                        <span class="skill-tag">{{ comp.libelle }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
-    </div>
+			{% if job.competences is defined %}
+				<div style="margin-top: 1.5rem;">
+					<strong>🛠 Compétences :</strong>
+					<div class="skills-grid">
+						{% for comp in job.competences %}
+							<span class="skill-tag">{{ comp.libelle }}</span>
+						{% endfor %}
+					</div>
+				</div>
+			{% endif %}
+		</div>
 
-    {% if job.contact is defined %}
-    <div class="content-box">
-        <h3 class="section-title">Contact</h3>
-        {% if job.contact.nom is defined %}<p>👤 {{ job.contact.nom }}</p>{% endif %}
-        {% if job.contact.courriel is defined %}<p>📧 {{ job.contact.courriel }}</p>{% endif %}
-        <p style="font-size: 0.9rem; color: #64748b;">{{ job.contact.coordonnees1 ?? '' }}</p>
-    </div>
-    {% endif %}
+		{% if job.contact is defined %}
+			<div class="content-box">
+				<h3 class="section-title">Contact</h3>
+				{% if job.contact.nom is defined %}
+					<p>👤
+						{{ job.contact.nom }}</p>
+				{% endif %}
+				{% if job.contact.courriel is defined %}
+					<p>📧
+						{{ job.contact.courriel }}</p>
+				{% endif %}
+				<p style="font-size: 0.9rem; color: #64748b;">{{ job.contact.coordonnees1 ?? '' }}</p>
+			</div>
+		{% endif %}
 
-    {# --- C'EST ICI QU'ON AJOUTE LE BLOC LETTRE --- #}
-    {% if generatedLetter is defined and generatedLetter %}
-        <div class="content-box" style="border: 2px solid #6366f1; background: #fdfcff;">
-            <h3 class="section-title" style="color: #4f46e5;">✨ Lettre de motivation générée</h3>
-            
-            <div id="letter-content" style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e0e7ff; font-family: 'Courier New', Courier, monospace; font-size: 0.95rem; line-height: 1.6; white-space: pre-line;">
-                {{ generatedLetter }}
-            </div>
+		{# --- C'EST ICI QU'ON AJOUTE LE BLOC LETTRE --- #}
+		{% if generatedLetter is defined and generatedLetter %}
+			<div class="content-box" style="border: 2px solid #6366f1; background: #fdfcff;">
+				<h3 class="section-title" style="color: #4f46e5;">✨ Lettre de motivation générée</h3>
 
-            <div style="margin-top: 1rem; text-align: right;">
+				<div id="letter-content" style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #e0e7ff; font-family: 'Courier New', Courier, monospace; font-size: 0.95rem; line-height: 1.6; white-space: pre-line;">
+					{{ generatedLetter }}
+				</div>
+
+				<div style="margin-top: 1rem; text-align: right;">
                 <button onclick="navigator.clipboard.writeText(document.getElementById('letter-content').innerText); alert('Texte copié dans le presse-papier ! 📋')" 
                         style="cursor: pointer; color: #4f46e5; background: none; border: none; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
-                    📋 Copier le texte
-                </button>
-            </div>
-        </div>
-    {% endif %}
-    {# --------------------------------------------- #}
+						📋 Copier le texte
+					</button>
+				</div>
+			</div>
+		{% endif %}
+		{# --------------------------------------------- #}
 
-    <div class="action-bar">
-        <div style="font-size: 0.9rem; color: #64748b; font-weight: 500;">
-            Cette offre vous plaît ?
-        </div>
+		<div class="action-bar">
+			<div style="font-size: 0.9rem; color: #64748b; font-weight: 500;">
+				Cette offre vous plaît ?
+			</div>
         <div style="display: flex; gap: 1rem; align-items: center;">
-            
-            {# BOUTON IA #}
-            <a href="{{ path('app_job_generate_ai', {id: job.id}) }}" class="btn-ai" style="padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
-                ✨ Générer Lettre
-            </a>
 
-            {# BOUTON POSTULER #}
-            {% set jobLink = job.origineOffre.urlOrigine ?? job.contact.urlPostulation ?? null %}
-            {% if jobLink is null %}
-                {% if job.id|length <= 8 %}
-                    {% set jobLink = 'https://candidat.francetravail.fr/offres/recherche/detail/' ~ job.id %}
-                {% else %}
-                    {% set jobLink = 'https://candidat.francetravail.fr/offres/recherche' %}
-                {% endif %}
-            {% endif %}
-            
-            <a href="{{ jobLink }}" target="_blank" class="btn-apply">
-                Postuler 🚀
-            </a>
-        </div>
-    </div>
+				{# BOUTON IA #}
+				<a href="{{ path('app_job_generate_ai', {id: job.id}) }}" class="btn-ai" style="padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem;">
+					✨ Générer Lettre
+				</a>
 
-</div>
+				{# BOUTON POSTULER #}
+				{% set jobLink = job.origineOffre.urlOrigine ?? job.contact.urlPostulation ?? null %}
+				{% if jobLink is null %}
+					{% if job.id|length <= 8 %}
+						{% set jobLink = 'https://candidat.francetravail.fr/offres/recherche/detail/' ~ job.id %}
+					{% else %}
+						{% set jobLink = 'https://candidat.francetravail.fr/offres/recherche' %}
+					{% endif %}
+				{% endif %}
+
+				<a href="{{ jobLink }}" target="_blank" class="btn-apply">
+					Postuler 🚀
+				</a>
+			</div>
+		</div>
+
+	</div>
 {% endblock %}

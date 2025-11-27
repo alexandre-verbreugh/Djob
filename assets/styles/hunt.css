@@ -1,0 +1,185 @@
+.hunt-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* --- STYLE DU FORMULAIRE --- */
+.search-box {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+    border: 1px solid #e2e8f0;
+}
+
+.search-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    /* Aligne le bouton avec les champs */
+}
+
+.form-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+.form-label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+/* Les classes .form-input et .btn-search sont injectées via le PHP (SearchJobType)
+   mais on peut les styliser ici si besoin de surcharge */
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.btn-search {
+    background: #0f172a;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    height: 48px;
+    /* Pour matcher la hauteur des inputs */
+}
+
+.btn-search:hover {
+    background: #334155;
+}
+
+/* --- STYLE DES RÉSULTATS --- */
+.results-count {
+    margin-bottom: 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.job-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.job-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.job-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.company-name {
+    font-weight: 600;
+    color: #4f46e5;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+/* Badges (Lieu, Contrat, Salaire) */
+.tags {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.job-desc {
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.btn-link {
+    display: inline-flex;
+    align-items: center;
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.saved-jobs-container {
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.btn-saved-jobs {
+    text-decoration: none;
+    color: #4f46e5;
+    font-weight: 600;
+    background: #eef2ff;
+    padding: 8px 16px;
+    border-radius: 99px;
+}
+
+.btn-saved-jobs:hover {
+    background: #e0e7ff;
+}
+
+.empty-state-container {
+    text-align: center;
+    padding: 4rem;
+    color: #94a3b8;
+    background: white;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+}
+
+.empty-state-emoji {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}

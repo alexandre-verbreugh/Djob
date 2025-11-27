@@ -4,92 +4,10 @@
 {% endblock %}
 
 {% block body %}
-	<style>
-		.container {
-			max-width: 900px;
-			margin: 3rem auto;
-			padding: 0 1rem;
-			font-family: 'Inter', sans-serif;
-		}
-
-		.header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 2rem;
-		}
-		.title {
-			font-size: 1.8rem;
-			font-weight: 800;
-			color: #1e293b;
-		}
-
-		.btn-back {
-			text-decoration: none;
-			color: #64748b;
-			font-weight: 500;
-			display: flex;
-			align-items: center;
-			gap: 0.5rem;
-		}
-		.btn-back:hover {
-			color: #1e293b;
-		}
-
-		.job-list {
-			display: grid;
-			gap: 1rem;
-		}
-
-		.saved-job {
-			background: white;
-			padding: 1.5rem;
-			border-radius: 12px;
-			border: 1px solid #e2e8f0;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			transition: transform 0.2s, box-shadow 0.2s;
-		}
-		.saved-job:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-		}
-
-		.job-info h3 {
-			margin: 0 0 0.5rem;
-			font-size: 1.1rem;
-			color: #1e293b;
-		}
-		.job-meta {
-			font-size: 0.9rem;
-			color: #64748b;
-			display: flex;
-			gap: 1rem;
-		}
-
-		.btn-view {
-			background: #f1f5f9;
-			color: #475569;
-			padding: 0.5rem 1rem;
-			border-radius: 8px;
-			text-decoration: none;
-			font-weight: 600;
-			font-size: 0.9rem;
-		}
-		.btn-view:hover {
-			background: #e2e8f0;
-			color: #1e293b;
-		}
-
-		.empty-state {
-			text-align: center;
-			padding: 4rem;
-			color: #94a3b8;
-			border: 2px dashed #e2e8f0;
-			border-radius: 16px;
-		}
-	</style>
+	{% block stylesheets %}
+		{{ parent() }}
+		<link rel="stylesheet" href="{{ asset('styles/my_jobs.css') }}">
+	{% endblock %}
 
 	<div class="container">
 		<div class="header">
@@ -122,7 +40,7 @@
 							{# On utilise l'ID de la BDD pour retourner voir le détail et la lettre #}
 							{# ATTENTION : Comme c'est un ID BDD (ex: 17) et pas France Travail, il faut que le controller gère ça #}
 							{# Heureusement, notre méthode 'show' commence par vérifier la BDD, donc ça marche ! #}
-								<a href="{{ path('app_job_show', {id: job.link|split('/')|last }) }}" class="btn-view"> Voir le dossier →
+								<a href="{{ path('app_job_show', {id: job.link|split('/')|last }) }}" class="btn-view"> Afficher l'annonce →
 							</a>
 							<a href="{{ path('app_job_toggle_applied', {id: job.id}) }}" class="btn-view" style="margin-left: 0.5rem; background: {{ job.applied ? '#dcfce7' : '#f1f5f9' }}; color: {{ job.applied ? '#166534' : '#475569' }};">
 								{{ job.applied ? '✅ Postulé' : '⬜ Non postulé' }}
