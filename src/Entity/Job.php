@@ -32,6 +32,9 @@ class Job
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column]
+    private ?bool $applied = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Job
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isApplied(): ?bool
+    {
+        return $this->applied;
+    }
+
+    public function setApplied(bool $applied): static
+    {
+        $this->applied = $applied;
 
         return $this;
     }

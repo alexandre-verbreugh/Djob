@@ -159,4 +159,14 @@ class HuntController extends AbstractController
             'jobs' => $jobs,
         ]);
     }
+    #[Route('/job/{id}/toggle-applied', name: 'app_job_toggle_applied')]
+    public function toggleApplied(Job $job, EntityManagerInterface $em, Request $request): Response
+    {
+        $job->setApplied(!$job->isApplied());
+        $em->flush();
+
+        $this->addFlash('success', 'Statut mis à jour !');
+
+        return $this->redirect($request->headers->get('referer'));
+    }
 }
