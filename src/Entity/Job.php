@@ -35,6 +35,9 @@ class Job
     #[ORM\Column]
     private ?bool $applied = false;
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $source = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -121,6 +124,17 @@ class Job
     {
         $this->applied = $applied;
 
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
         return $this;
     }
 }

@@ -7,6 +7,7 @@ use App\Entity\Job;
 use App\Repository\JobRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\FranceTravailService;
+use App\Service\AdzunaService;
 use App\Service\JobAnalyzer;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class HuntController extends AbstractController
 {
     #[Route('/', name: 'app_hunt')]
-    public function index(Request $request, FranceTravailService $ftService): Response
+    public function index(Request $request, FranceTravailService $ftService, AdzunaService $adzunaService): Response
     {
         // 1. Création du formulaire
         // On passe des valeurs par défaut (Développeur, 18)
@@ -40,10 +41,21 @@ class HuntController extends AbstractController
         $keyword = $data['keyword'] ?? 'Développeur';
         $location = $data['location'] ?? '18';
 
-        $jobs = $ftService->searchJobs($keyword, $location);
+        $franceTravailJobs = $ftService->searchJobs($keyword, $location);
+
+// Pour Adzuna, on convertit le département en ville
+$adzunaLocation = ($location === '18') ? 'Bourges' : $location;
+$adzunaJobs = $adzunaService->searchJobs($keyword, $adzunaLocation);
+dump('Nombre offres Adzuna:', count($adzunaJobs));
+
+// On fusionne les deux tableaux
+$jobs = array_merge($franceTravailJobs, $adzunaJobs);
+    
+        // On fusionne les deux tableaux
+        $jobs = array_merge($franceTravailJobs, $adzunaJobs);
 
         return $this->render('hunt/index.html.twig', [
-            'form' => $form->createView(), // On envoie le formulaire à la vue
+            'form' => $form->createView(),
             'jobs' => $jobs,
         ]);
     }

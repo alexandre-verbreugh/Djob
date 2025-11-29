@@ -59,7 +59,13 @@ class FranceTravailService
                 ]
             ]);
 
-            return $response->toArray()['resultats'] ?? [];
+            $results = $response->toArray()['resultats'] ?? [];
+
+            // On ajoute la source à chaque offre
+            return array_map(function($job) {
+                $job['source'] = 'france_travail';
+                return $job;
+            }, $results);
 
         } catch (\Exception $e) {
             // En production, l'idéal serait de loguer l'erreur ici (ex: $this->logger->error($e))

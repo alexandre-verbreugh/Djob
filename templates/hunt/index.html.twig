@@ -65,6 +65,12 @@
 						{{ job.entreprise.nom ?? 'Entreprise Confidentielle' }}
 					</div>
 
+					{% if job.source == 'adzuna' %}
+						<span class="badge bg-success">Adzuna</span>
+					{% else %}
+						<span class="badge bg-primary">France Travail</span>
+					{% endif %}
+
 					<div class="tags">
 						<span class="tag">📍
 							{{ job.lieuTravail.libelle }}</span>
