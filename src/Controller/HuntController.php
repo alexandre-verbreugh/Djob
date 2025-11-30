@@ -41,32 +41,33 @@ class HuntController extends AbstractController
         $keyword = $data['keyword'] ?? 'Développeur';
         $location = $data['location'] ?? '18';
 
-        $franceTravailJobs = $ftService->searchJobs($keyword, $location);
+        // Récupération de la source (par défaut 'francetravail')
+        $source = $request->query->get('source', 'francetravail');
 
-// Pour Adzuna, on convertit le département en ville
-$adzunaLocation = ($location === '18') ? 'Bourges' : $location;
-$adzunaJobs = $adzunaService->searchJobs($keyword, $adzunaLocation);
-dump('Nombre offres Adzuna:', count($adzunaJobs));
-
-// On fusionne les deux tableaux
-$jobs = array_merge($franceTravailJobs, $adzunaJobs);
-    
-        // On fusionne les deux tableaux
-        $jobs = array_merge($franceTravailJobs, $adzunaJobs);
+        if ($source === 'francetravail') {
+            $jobs = $ftService->searchJobs($keyword, $location);
+        } elseif ($source === 'adzuna') {
+            // Pour Adzuna, on convertit le département en ville
+            $adzunaLocation = ($location === '18') ? 'Bourges' : $location;
+            $jobs = $adzunaService->searchJobs($keyword, $adzunaLocation);
+        } else {
+            // Fallback ou "tous" si jamais on voulait faire ça plus tard
+            $jobs = $ftService->searchJobs($keyword, $location);
+        }
 
         return $this->render('hunt/index.html.twig', [
             'form' => $form->createView(),
             'jobs' => $jobs,
+            'currentSource' => $source,
         ]);
     }
 
     #[Route('/offre/{id}', name: 'app_job_show')]
     public function show(
-        string $id, 
-        FranceTravailService $ftService, 
+        string $id,
+        FranceTravailService $ftService,
         JobRepository $jobRepository
-    ): Response
-    {
+    ): Response {
         // 1. On récupère les détails frais depuis l'API
         $job = $ftService->getJobDetails($id);
 
@@ -77,12 +78,12 @@ $jobs = array_merge($franceTravailJobs, $adzunaJobs);
 
         // 2. ON VÉRIFIE SI ON A DÉJÀ CETTE OFFRE EN BASE (Pour récupérer la lettre)
         $letter = null;
-        
+
         // On reconstruit le lien comme on l'a fait pour la sauvegarde
         // (C'est notre clé unique pour retrouver l'offre)
-        $link = $job['origineOffre']['urlOrigine'] 
-             ?? $job['contact']['urlPostulation'] 
-             ?? 'https://candidat.francetravail.fr/offres/recherche/detail/' . $id;
+        $link = $job['origineOffre']['urlOrigine']
+            ?? $job['contact']['urlPostulation']
+            ?? 'https://candidat.francetravail.fr/offres/recherche/detail/' . $id;
 
         $existingJob = $jobRepository->findOneBy(['link' => $link]);
 
@@ -99,14 +100,13 @@ $jobs = array_merge($franceTravailJobs, $adzunaJobs);
 
     #[Route('/offre/{id}/generate', name: 'app_job_generate_ai')]
     public function generateAi(
-        string $id, 
+        string $id,
         FranceTravailService $ftService,
         JobAnalyzer $analyzer,
         EntityManagerInterface $em,
         JobRepository $jobRepository,
         #[Autowire('%app.candidate_profile%')] string $myProfile
-    ): Response
-    {
+    ): Response {
         // 1. On récupère l'offre fraîche depuis l'API
         $apiJob = $ftService->getJobDetails($id);
 
@@ -117,18 +117,18 @@ $jobs = array_merge($franceTravailJobs, $adzunaJobs);
 
         // 2. On génère la lettre (IA)
         $letter = $analyzer->generateCoverLetter(
-            $apiJob['intitule'], 
-            $apiJob['description'], 
+            $apiJob['intitule'],
+            $apiJob['description'],
             $myProfile
         );
 
         if ($letter) {
             // 3. SAUVEGARDE EN BDD 💾
-            
+
             // On reconstruit le lien proprement (comme dans le Twig)
-            $link = $apiJob['origineOffre']['urlOrigine'] 
-                 ?? $apiJob['contact']['urlPostulation'] 
-                 ?? 'https://candidat.francetravail.fr/offres/recherche/detail/' . $id;
+            $link = $apiJob['origineOffre']['urlOrigine']
+                ?? $apiJob['contact']['urlPostulation']
+                ?? 'https://candidat.francetravail.fr/offres/recherche/detail/' . $id;
 
             // On vérifie si l'offre existe déjà en base pour ne pas créer de doublon
             $existingJob = $jobRepository->findOneBy(['link' => $link]);

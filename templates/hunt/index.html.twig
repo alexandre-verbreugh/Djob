@@ -12,9 +12,26 @@
 	<div class="hunt-container">
 
 		<div class="search-box">
-			<h2 class="search-title">🔎 Explorateur France Travail</h2>
+			<h2 class="search-title">🔎 Explorateur d'Offres</h2>
+
+            <div class="source-selector">
+                {% set currentParams = app.request.query.all %}
+                
+                <a href="{{ path('app_hunt', currentParams|merge({'source': 'francetravail'})) }}" 
+                   class="btn {{ currentSource == 'francetravail' ? 'btn-primary' : 'btn-outline-primary' }} btn-source-ft">
+                   France Travail
+                </a>
+                
+                <a href="{{ path('app_hunt', currentParams|merge({'source': 'adzuna'})) }}" 
+                   class="btn {{ currentSource == 'adzuna' ? 'btn-success' : 'btn-outline-success' }}">
+                   Adzuna
+                </a>
+            </div>
 
 			{{ form_start(form) }}
+            {# Persist the current source in the form #}
+            <input type="hidden" name="source" value="{{ currentSource }}">
+            
 			<div class="form-row">
 				<div class="form-group">
 					{{ form_label(form.keyword, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -55,7 +72,7 @@
 				<div class="job-card">
 					<div class="job-header">
 						<div class="job-title">{{ job.intitule }}</div>
-						<div style="font-size: 0.85rem; color: #94a3b8;">
+						<div class="job-date">
 							{{ job.dateCreation | date('d/m/Y') }}
 						</div>
 					</div>
@@ -100,7 +117,7 @@
 							{% set jobLink = 'https://candidat.francetravail.fr/offres/recherche' %}
 						{% endif %}
 					{% endif %}
-					<a href="{{ path('app_job_show', {id: job.id}) }}" class="btn-link" style="margin-right: 15px; color: #1e293b;">
+					<a href="{{ path('app_job_show', {id: job.id}) }}" class="btn-link btn-details">
 						👁️ Voir les détails
 					</a>
 					<a href="{{ jobLink }}" target="_blank" class="btn-link">
